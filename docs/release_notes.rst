@@ -1,6 +1,23 @@
 Release Notes
 =============
 
+v4.0.0a1
+--------
+
+:date: 2019-04-10
+
+This is major release and contains breaking changes. Please read the notes below carefully.
+
+Given that `botocore` has moved to using `urllib3` directly for making HTTP requests, we'll be doing the same (via `botocore`). This means the following:
+
+ * The `session_cls` option is no longer supported. <TODO: discuss replacement opts>
+ * The `request_timeout_seconds` parameter is no longer supported. `connect_timeout_seconds` and `read_timeout_seconds` are now available instead.
+
+Other changes in this release:
+
+ * Fixes moto support through implementing the botocore "before-send" hook. Other botocore hooks remain unimplemented.
+
+
 v3.3.3
 ------
 
