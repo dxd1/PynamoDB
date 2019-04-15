@@ -229,7 +229,7 @@ class AttributeContainer(object):
         self._set_defaults()
         self._set_attributes(**attributes)
 
-    def to_dict(self, include_null=False):
+    def to_dict(self, include_none=False):
         retval = {}
         for name, attr in self.get_attributes().items():
             if name in self.attribute_values:
@@ -238,8 +238,8 @@ class AttributeContainer(object):
                     retval[name] = value.to_dict()
                 else:
                     retval[name] = value
-            elif include_null:
-                retval[name] = None  # get type?
+            elif include_none:
+                retval[name] = None
 
         return retval
 

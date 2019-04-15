@@ -4424,8 +4424,14 @@ class ModelTestCase(TestCase):
             {'created_at': time, 'identifier': 'foo', 'my_num': 12, 'mymap': {'lst': [{'uni': 'baz'}], 'str': 'bar'}}
         )
         self.assertDictEqual(
-            model.to_dict(include_null=True),
-            {'created_at': time, 'identifier': 'foo', 'my_num': 12, 'mymap': {'lst': [{'uni': 'baz'}], 'str': 'bar'}, 'notset': None}
+            model.to_dict(True),
+            {
+                'created_at': time,
+                'identifier': 'foo',
+                'my_num': 12,
+                'mymap': {'lst': [{'uni': 'baz'}], 'str': 'bar'},
+                'notset': None
+            }
         )
 
     def test_to_json(self):
@@ -4442,12 +4448,13 @@ class ModelTestCase(TestCase):
         }
         self.assertEqual(
             model.to_json(),
-            '{{"created_at": "{time}", "identifier": "foo", "my_num": 12, "mymap": {{"lst": [{{"uni": "baz"}}], "str": "bar"}}}}'.format(time=time.isoformat())
+            '{{"created_at": "{time}", "identifier": "foo", "my_num": 12, "mymap": {{"lst": [{{"uni": "baz"}}], \
+"str": "bar"}}}}'.format(time=time.isoformat())
         )
         self.assertEqual(
-            model.to_json(include_null=True),
-            '{{"created_at": "{time}", "identifier": "foo", "my_num": 12, "mymap": {{"lst": [{{"uni": "baz"}}], "str": "bar"}}, "notset": null}}'.format(
-                time=time.isoformat())
+            model.to_json(True),
+            '{{"created_at": "{time}", "identifier": "foo", "my_num": 12, "mymap": {{"lst": [{{"uni": "baz"}}], \
+"str": "bar"}}, "notset": null}}'.format(time=time.isoformat())
         )
 
 
