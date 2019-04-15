@@ -5,6 +5,7 @@ import base64
 import random
 import json
 import copy
+from datetime import timezone
 from datetime import datetime
 
 import six
@@ -96,6 +97,28 @@ class GameModel(Model):
     player_opponent_index = GamePlayerOpponentIndex()
     opponent_time_index = GameOpponentTimeIndex()
 
+
+class ListElementAttribute(MapAttribute):
+    uni = UnicodeAttribute()
+
+
+class MyMapAttribute(MapAttribute):
+    str = UnicodeAttribute()
+    lst = ListAttribute(of=ListElementAttribute)
+
+
+class BasicModel(Model):
+    class Meta:
+        read_capacity_units = 1
+        write_capacity_units = 1
+        table_name = "BasicModel"
+        host = "http://localhost:8000"
+
+    identifier = UnicodeAttribute(hash_key=True)
+    created_at = UTCDateTimeAttribute(range_key=True)
+    my_num = NumberAttribute()
+    mymap = MyMapAttribute()
+    notset = UnicodeAttribute()
 
 class OldStyleModel(Model):
     _table_name = 'IndexedModel'
@@ -4383,6 +4406,49 @@ class ModelTestCase(TestCase):
             self.assert_dict_lists_equal(actual['KeySchema'], DOG_TABLE_DATA['Table']['KeySchema'])
             self.assert_dict_lists_equal(actual['AttributeDefinitions'],
                                          DOG_TABLE_DATA['Table']['AttributeDefinitions'])
+
+    def test_to_dict(self):
+        BasicModel.create_table()
+        model = BasicModel('foo')
+        time = datetime.now(timezone.utc)
+        model.created_at = time
+        model.my_num = 12
+        model.mymap = {
+            'str': "bar",
+            'lst': [
+                {'uni': 'baz'}
+            ]
+        }
+        self.assertDictEqual(
+            model.to_dict(),
+            {'created_at': time, 'identifier': 'foo', 'my_num': 12, 'mymap': {'lst': [{'uni': 'baz'}], 'str': 'bar'}}
+        )
+        self.assertDictEqual(
+            model.to_dict(include_null=True),
+            {'created_at': time, 'identifier': 'foo', 'my_num': 12, 'mymap': {'lst': [{'uni': 'baz'}], 'str': 'bar'}, 'notset': None}
+        )
+
+    def test_to_json(self):
+        BasicModel.create_table()
+        model = BasicModel('foo')
+        time = datetime.now(timezone.utc)
+        model.created_at = time
+        model.my_num = 12
+        model.mymap = {
+            'str': "bar",
+            'lst': [
+                {'uni': 'baz'}
+            ]
+        }
+        self.assertEqual(
+            model.to_json(),
+            '{{"created_at": "{time}", "identifier": "foo", "my_num": 12, "mymap": {{"lst": [{{"uni": "baz"}}], "str": "bar"}}}}'.format(time=time.isoformat())
+        )
+        self.assertEqual(
+            model.to_json(include_null=True),
+            '{{"created_at": "{time}", "identifier": "foo", "my_num": 12, "mymap": {{"lst": [{{"uni": "baz"}}], "str": "bar"}}, "notset": null}}'.format(
+                time=time.isoformat())
+        )
 
 
 class ModelInitTestCase(TestCase):

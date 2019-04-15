@@ -175,6 +175,13 @@ class Attribute(object):
         return Path(self).delete(*values)
 
 
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return json.JSONEncoder.default(obj)
+
+
 class AttributeContainerMeta(type):
 
     def __init__(cls, name, bases, attrs):
@@ -221,6 +228,23 @@ class AttributeContainer(object):
         self.attribute_values = {}
         self._set_defaults()
         self._set_attributes(**attributes)
+
+    def to_dict(self, include_null=False):
+        retval = {}
+        for name, attr in self.get_attributes().items():
+            if name in self.attribute_values:
+                value = self.attribute_values[name]
+                if isinstance(value, AttributeContainer):
+                    retval[name] = value.to_dict()
+                else:
+                    retval[name] = value
+            elif include_null:
+                retval[name] = None  # get type?
+
+        return retval
+
+    def to_json(self, include_null=False):
+        return json.dumps(self.to_dict(include_null), cls=DateTimeEncoder)
 
     @classmethod
     def _get_attributes(cls):
