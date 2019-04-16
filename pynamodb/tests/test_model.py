@@ -5,7 +5,6 @@ import base64
 import random
 import json
 import copy
-from datetime import timezone
 from datetime import datetime
 
 import six
@@ -4410,7 +4409,7 @@ class ModelTestCase(TestCase):
     def test_to_dict(self):
         BasicModel.create_table()
         model = BasicModel('foo')
-        time = datetime.now(timezone.utc)
+        time = datetime.utcnow()
         model.created_at = time
         model.my_num = 12
         model.mymap = {
@@ -4437,7 +4436,7 @@ class ModelTestCase(TestCase):
     def test_to_json(self):
         BasicModel.create_table()
         model = BasicModel('foo')
-        time = datetime.now(timezone.utc)
+        time = datetime.utcnow()
         model.created_at = time
         model.my_num = 12
         model.mymap = {

@@ -244,7 +244,7 @@ class AttributeContainer(object):
         return retval
 
     def to_json(self, include_null=False):
-        return json.dumps(self.to_dict(include_null), cls=DateTimeEncoder)
+        return json.dumps(self.to_dict(include_null), cls=DateTimeEncoder, sort_keys=True)
 
     @classmethod
     def _get_attributes(cls):
