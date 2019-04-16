@@ -4407,53 +4407,67 @@ class ModelTestCase(TestCase):
                                          DOG_TABLE_DATA['Table']['AttributeDefinitions'])
 
     def test_to_dict(self):
-        BasicModel.create_table()
-        model = BasicModel('foo')
-        time = datetime.utcnow()
-        model.created_at = time
-        model.my_num = 12
-        model.mymap = {
-            'str': "bar",
-            'lst': [
-                {'uni': 'baz'}
-            ]
-        }
         self.assertDictEqual(
-            model.to_dict(),
-            {'created_at': time, 'identifier': 'foo', 'my_num': 12, 'mymap': {'lst': [{'uni': 'baz'}], 'str': 'bar'}}
-        )
-        self.assertDictEqual(
-            model.to_dict(True),
+            self._get_office().to_dict(),
             {
-                'created_at': time,
-                'identifier': 'foo',
-                'my_num': 12,
-                'mymap': {'lst': [{'uni': 'baz'}], 'str': 'bar'},
-                'notset': None
+                'address': {'lat': 37.77461, 'lng': -122.3957216, 'name': 'Lyft HQ'},
+                'employees': [
+                    {
+                        'office_employee_id': 123,
+                        'office_location': {'lat': 37.77461, 'lng': -122.3957216, 'name': 'Lyft HQ'},
+                        'person': {'age': 31, 'fname': 'Justin', 'is_male': True, 'lname': 'Phillips'}
+                    },
+                    {
+                        'office_employee_id': 124,
+                        'office_location': {'lat': 37.77461, 'lng': -122.3957216, 'name': 'Lyft HQ'},
+                        'person': {'age': 32, 'fname': 'Lei', 'is_male': True, 'lname': 'Ding'}},
+                    {
+                        'office_employee_id': 125,
+                        'office_location': {'lat': 37.77461, 'lng': -122.3957216, 'name': 'Lyft HQ'},
+                        'person': {'age': 30, 'fname': 'Garrett', 'is_male': True, 'lname': 'Heel'}
+                    },
+                    {
+                        'office_employee_id': 126,
+                        'office_location': {'lat': 37.77461, 'lng': -122.3957216, 'name': 'Lyft HQ'},
+                        'person': {'age': 30, 'fname': 'Tanya', 'is_male': False, 'lname': 'Ashkenazi'}
+                    }
+                ],
+                'office_id': 3
             }
         )
 
-    def test_to_json(self):
-        BasicModel.create_table()
-        model = BasicModel('foo')
-        time = datetime.utcnow()
-        model.created_at = time
-        model.my_num = 12
-        model.mymap = {
-            'str': "bar",
-            'lst': [
-                {'uni': 'baz'}
-            ]
-        }
         self.assertEqual(
-            model.to_json(),
-            '{{"created_at": "{time}", "identifier": "foo", "my_num": 12, "mymap": {{"lst": [{{"uni": "baz"}}], \
-"str": "bar"}}}}'.format(time=time.isoformat())
+            GameModel().to_dict(True),
+            {'created_time': None, 'loser_id': None, 'player_id': None, 'winner_id': None}
         )
+
+    def test_to_json(self):
         self.assertEqual(
-            model.to_json(True),
-            '{{"created_at": "{time}", "identifier": "foo", "my_num": 12, "mymap": {{"lst": [{{"uni": "baz"}}], \
-"str": "bar"}}, "notset": null}}'.format(time=time.isoformat())
+            self._get_office().to_json(),
+            '{"address": {"lat": 37.77461, "lng": -122.3957216, "name": "Lyft HQ"}, "employees": \
+[{"office_employee_id": 123, "office_location": {"lat": 37.77461, "lng": -122.3957216, "name": "Lyft HQ"}, "person": \
+{"age": 31, "fname": "Justin", "is_male": true, "lname": "Phillips"}}, {"office_employee_id": 124, "office_location": \
+{"lat": 37.77461, "lng": -122.3957216, "name": "Lyft HQ"}, "person": {"age": 32, "fname": "Lei", "is_male": true, \
+"lname": "Ding"}}, {"office_employee_id": 125, "office_location": {"lat": 37.77461, "lng": -122.3957216, "name": \
+"Lyft HQ"}, "person": {"age": 30, "fname": "Garrett", "is_male": true, "lname": "Heel"}}, {"office_employee_id": 126, \
+"office_location": {"lat": 37.77461, "lng": -122.3957216, "name": "Lyft HQ"}, "person": {"age": 30, "fname": "Tanya", \
+"is_male": false, "lname": "Ashkenazi"}}], "office_id": 3}'
+        )
+
+        user = UserModel('foo')
+        user.picture = b'abc123'
+        print(type(user.picture))
+        self.assertEqual(
+            user.to_json(),
+            '{"callable_field": 42, "custom_user_name": "foo", "email": "needs_email", "picture": "abc123"}'
+        )
+
+        time = datetime.utcnow()
+        game = GameModel()
+        game.created_time = time
+        self.assertEqual(
+            game.to_json(True),
+            '{"created_time": "'+time.isoformat()+'", "loser_id": null, "player_id": null, "winner_id": null}'
         )
 
 

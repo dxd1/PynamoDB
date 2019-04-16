@@ -175,11 +175,15 @@ class Attribute(object):
         return Path(self).delete(*values)
 
 
-class DateTimeEncoder(json.JSONEncoder):
+class DictJsonEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):
             return obj.isoformat()
-        return json.JSONEncoder.default(obj)
+        if isinstance(obj, bytes):
+            return obj.decode('ascii')
+        if isinstance(obj, bytearray):
+            return [chr(byte_element) for byte_element in obj]
+        return json.JSONEncoder.default(self, obj)
 
 
 class AttributeContainerMeta(type):
@@ -234,8 +238,10 @@ class AttributeContainer(object):
         for name, attr in self.get_attributes().items():
             if name in self.attribute_values:
                 value = self.attribute_values[name]
-                if isinstance(value, AttributeContainer):
-                    retval[name] = value.to_dict()
+                if isinstance(attr, AttributeContainer):
+                    retval[name] = value.to_dict(include_none)
+                elif isinstance(attr, ListAttribute) and isinstance(attr.element_type, MapAttributeMeta):
+                    retval[name] = [element.to_dict(include_none) for element in value]
                 else:
                     retval[name] = value
             elif include_none:
@@ -244,7 +250,7 @@ class AttributeContainer(object):
         return retval
 
     def to_json(self, include_null=False):
-        return json.dumps(self.to_dict(include_null), cls=DateTimeEncoder, sort_keys=True)
+        return json.dumps(self.to_dict(include_null), cls=DictJsonEncoder, sort_keys=True)
 
     @classmethod
     def _get_attributes(cls):
