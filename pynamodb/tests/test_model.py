@@ -97,28 +97,6 @@ class GameModel(Model):
     opponent_time_index = GameOpponentTimeIndex()
 
 
-class ListElementAttribute(MapAttribute):
-    uni = UnicodeAttribute()
-
-
-class MyMapAttribute(MapAttribute):
-    str = UnicodeAttribute()
-    lst = ListAttribute(of=ListElementAttribute)
-
-
-class BasicModel(Model):
-    class Meta:
-        read_capacity_units = 1
-        write_capacity_units = 1
-        table_name = "BasicModel"
-        host = "http://localhost:8000"
-
-    identifier = UnicodeAttribute(hash_key=True)
-    created_at = UTCDateTimeAttribute(range_key=True)
-    my_num = NumberAttribute()
-    mymap = MyMapAttribute()
-    notset = UnicodeAttribute()
-
 class OldStyleModel(Model):
     _table_name = 'IndexedModel'
     user_name = UnicodeAttribute(hash_key=True)
